@@ -18,20 +18,66 @@ const excelData = XLSX.utils.sheet_to_json(worksheet);
 
 const finalData = {};
 
+const finalExcelData = [];
+
 for (let i = 0; i < excelData.length; i++) {
-  if (excelData[i].hasOwnProperty("Folder")) {
-    excelData[i].tags = [excelData[i].Folder];
-    delete excelData[i].Folder;
+  let config = {
+    selections: [
+      {
+        delay: 0,
+        dynamic: true,
+        frames: [
+          {
+            excludes: [],
+            includes: [
+              {
+                expr: "",
+                fields: [
+                  {
+                    name: "text",
+                    type: "builtin"
+                  }
+                ],
+                type: "xpath"
+              },
+              {
+                expr: "",
+                fields: [
+                  {
+                    name: "text",
+                    type: "builtin"
+                  }
+                ],
+                type: "xpath"
+              }
+            ],
+            index:0
+          }
+        ]
+      }
+    ],
+    ignoreEmptyText: true,
+    includeStyle: false,
+    dataAttr: 'text',
+    regexp: {
+      expr: '',
+      flags: 'gim'
+    }
   }
 
-  if (excelData[i].hasOwnProperty("Interval (min)")) {
-    excelData[i].Interval = excelData[i]["Interval (min)"];
-    delete excelData[i]["Interval (min)"];
+  config['selections'][0]['frames'][0]['includes'][0]['expr'] = excelData[i].XPath
+
+  const data = {
+    name: excelData[i].Name,
+    uri: excelData[i].Url,
+    config: JSON.stringify(config)
   }
+
+  finalExcelData.push(data);
 }
 
 finalData["client"] = { local: 1 };
-finalData["data"] = excelData;
+finalData["data"] = finalExcelData;
 
 watchData = JSON.stringify(finalData, null, 2);
 
